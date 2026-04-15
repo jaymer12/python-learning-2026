@@ -1,8 +1,6 @@
 # ================================================
 # DAY 5 - String Methods, File Handling & Mini Project
 # ================================================
-# Name: JAY
-# Date: April 13, 2026
 # Goal: Learn useful string methods and basic file handling
 
 print("=== Day 5 - Strings and File Handling Started ===\n")

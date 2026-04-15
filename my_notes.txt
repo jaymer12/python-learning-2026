@@ -1,0 +1,6 @@
+Day 5 Python Learning Notes
+===========================
+Name: JAY
+City: Regina, Saskatchewan
+Date: April 13, 2026
+Goal: Learning Python for backend development
