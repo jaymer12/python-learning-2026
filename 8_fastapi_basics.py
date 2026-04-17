@@ -3,11 +3,11 @@
 # ================================================
 # Goal: Learn FastAPI basics
 
-from fastapi import FastAPI
-from pydantic import BaseModel
-from typing import Optional
+from fastapi import FastAPI #  Main framework to build the API
+from pydantic import BaseModel # Used to define the structure of data (like a form)
+from typing import Optional # Means a field can be empty or None
 
-# Create FastAPI app
+# Create FastAPI app This creates your API application. Think of it as starting a new "shop".
 app = FastAPI(
     title="JAY's FastAPI Learning App",
     description="Day 8 - Building my first backend API",
