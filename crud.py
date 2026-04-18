@@ -17,11 +17,19 @@ def get_task(db:Session, task_id: int):
 
 def update_task(db: Session, task_id: int, task_data: TaskCreate):
     task = db.query(Task).filter(Task.id == task_id).first()
-    if task:
+    if not task:
+        return None
+    
+    if task_data.title is not None:
         task.title = task_data.title
+    if task_data.description is not None:
         task.description = task_data.description
-        db.commit()
-        db.refresh()
+    if task_data.done is not None:
+        task.done = task_data.done
+
+
+    db.commit()
+    db.refresh(task)
     return task
 
 def delete_task(db: Session, task_id: int):
