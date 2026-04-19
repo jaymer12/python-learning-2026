@@ -1,42 +1,52 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from typing import List
-import crud
-import schemas
 from database import get_db
+from auth import get_current_user
+import models, schemas
 
-router = APIRouter(prefix="/tasks", tags=["tasks"])
+router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
-# Create Task
+# Get all tasks for logged in user
+@router.get("/", response_model=list[schemas.TaskResponse])
+def get_tasks(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    tasks = db.query(models.Task).filter(models.Task.owner_id == current_user.id).all()
+    return tasks
+
+# Create task
 @router.post("/", response_model=schemas.TaskResponse)
-def create_task(task:schemas.TaskCreate, db:Session= Depends(get_db)):
-    return crud.create_task(db, task)
+def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    db_task = models.Task(
+        title=task.title,
+        description=task.description,
+        owner_id=current_user.id
+    )
+    db.add(db_task)
+    db.commit()
+    db.refresh(db_task)
+    return db_task
 
-# Get All tasks
-@router.get("/", response_model=List[schemas.TaskResponse])
-def get_all_tasks(db: Session = Depends(get_db)):
-    return crud.get_all_tasks(db)
-
-#Get Single Task
-@router.get("/{task_id}", response_model=schemas.TaskResponse)
-def get_task(task_id: int, db: Session = Depends(get_db)):
-    task = crud.get_task(db, task_id)
-    if task is None:
+# Update task
+@router.put("/{task_id}", response_model=schemas.TaskResponse)
+def update_task(task_id: int, task_data: schemas.TaskUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    task = db.query(models.Task).filter(models.Task.id == task_id, models.Task.owner_id == current_user.id).first()
+    if not task:
         raise HTTPException(status_code=404, detail="Task not found")
+    if task_data.title is not None:
+        task.title = task_data.title
+    if task_data.description is not None:
+        task.description = task_data.description
+    if task_data.done is not None:
+        task.done = task_data.done
+    db.commit()
+    db.refresh(task)
     return task
-
-#Update task( Title, description, or Mark as Done)
-@router.put("/{task_id}", response_model= schemas.TaskResponse)
-def update_task(task_id: int, task: schemas.TaskUpdate, db: Session = Depends(get_db)):
-    updated_task = crud.update_task(db, task_id, task)
-    if updated_task is None:
-        raise HTTPException(status_code=404, detail="Task not found")
-    return updated_task
 
 # Delete task
 @router.delete("/{task_id}")
-def delete_task(task_id: int, db: Session = Depends(get_db)):
-    deleted = crud.delete_task(db, task_id)
-    if not deleted:
+def delete_task(task_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    task = db.query(models.Task).filter(models.Task.id == task_id, models.Task.owner_id == current_user.id).first()
+    if not task:
         raise HTTPException(status_code=404, detail="Task not found")
-    return {"message": f"Task {task_id} is deleted successfully"}
+    db.delete(task)
+    db.commit()
+    return {"message": "Task deleted successfully"}

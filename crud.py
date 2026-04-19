@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from models import Task
-from schemas import TaskCreate
+from schemas import TaskCreate,TaskUpdate
 
 def create_task(db:Session, task: TaskCreate):
     db_task = Task(title=task.title, description=task.description)
@@ -15,7 +15,7 @@ def get_all_tasks(db:Session):
 def get_task(db:Session, task_id: int):
     return db.query(Task).filter(Task.id == task_id).first()
 
-def update_task(db: Session, task_id: int, task_data: TaskCreate):
+def update_task(db: Session, task_id: int, task_data: TaskUpdate):
     task = db.query(Task).filter(Task.id == task_id).first()
     if not task:
         return None
