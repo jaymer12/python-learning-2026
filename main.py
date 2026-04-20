@@ -12,8 +12,7 @@ app = FastAPI(title="JAY's Todo API", version="1.0")
 
 origins = [
     "http://localhost:5173",
-    "https://todo-frontend-jay.vercel.app",  # we'll update this after Vercel deploy
-    os.getenv("FRONTEND_URL", ""),
+    "https://python-learning-2026.vercel.app",
 ]
 
 app.add_middleware(
