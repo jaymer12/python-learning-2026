@@ -4,14 +4,21 @@ from routers.auth import router as auth_router
 from routers.tasks import router as tasks_router
 import models
 from database import engine
+import os
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="JAY's Todo API", version="1.0")
 
+origins = [
+    "http://localhost:5173",
+    "https://todo-frontend-jay.vercel.app",  # we'll update this after Vercel deploy
+    os.getenv("FRONTEND_URL", ""),
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
